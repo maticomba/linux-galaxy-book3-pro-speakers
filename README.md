@@ -40,7 +40,7 @@ with the expected codec, and every value it writes is one Windows writes on the
 same hardware. Still, use it at your own risk.
 
 ```bash
-git clone <this repo> && cd linux-galaxy-book-3-pro-speakers
+git clone https://github.com/maticomba/linux-galaxy-book3-pro-speakers.git && cd linux-galaxy-book3-pro-speakers
 
 # 1. Try it once without installing anything (start with the volume at 20-30 %)
 sudo python3 -I fix/alc298-amp-init-win.py
