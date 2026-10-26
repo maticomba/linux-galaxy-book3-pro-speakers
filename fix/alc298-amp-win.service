@@ -1,0 +1,14 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
+[Unit]
+Description=ALC298 internal speaker amplifiers with the Windows configuration (Galaxy Book3 Pro 14" 940XFG)
+After=systemd-modules-load.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/python3 -I /usr/local/sbin/alc298-amp-init-win.py --table /usr/local/share/alc298-amp-win/windows-amp-init-940xfg-ka1ar.txt
+
+# No RemainAfterExit: if the card registers again (e.g. when the driver is
+# reloaded), udev starts it again. No [Install] section on purpose: it is
+# started by the udev rule (99-alc298-amp-win.rules) once the internal card has
+# finished registering; with WantedBy=multi-user.target it could run before the
+# codec exists.

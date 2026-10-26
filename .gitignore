@@ -1,0 +1,6 @@
+# VM working files (never commit: disk overlay, firmware vars, machine ACPI table)
+capture/*.qcow2
+capture/OVMF_VARS.fd
+capture/nhlt.bin
+capture/captures/
+__pycache__/

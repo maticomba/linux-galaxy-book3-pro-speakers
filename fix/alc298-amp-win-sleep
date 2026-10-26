@@ -1,0 +1,11 @@
+#!/bin/bash
+# SPDX-License-Identifier: GPL-2.0-or-later
+# After resuming from suspend the codec is reset: apply the configuration again.
+# Installed in /lib/systemd/system-sleep/. Arguments: $1 = pre|post, $2 = type.
+case "$1/$2" in
+  post/suspend|post/hibernate|post/hybrid-sleep|post/suspend-then-hibernate)
+    /usr/bin/python3 -I /usr/local/sbin/alc298-amp-init-win.py \
+      --table /usr/local/share/alc298-amp-win/windows-amp-init-940xfg-ka1ar.txt \
+      2>&1 | logger -t alc298-amp-win || true
+    ;;
+esac

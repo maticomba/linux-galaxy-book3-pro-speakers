@@ -1,0 +1,9 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
+# Galaxy Book3 Pro 14" (940XFG): apply the Windows amplifier configuration when
+# the INTERNAL sound card has finished registering.
+# The card is identified by its PCI audio device (8086:51ca), not by its card
+# number: with a USB webcam or USB audio device connected, the internal card can
+# end up as card1, card2, etc. (2026-10-26: it was card2, and an earlier rule
+# that fired on the first card ran before the codec existed).
+# controlC* is created after the hwdep nodes of that card's codecs.
+ACTION=="add", SUBSYSTEM=="sound", KERNEL=="controlC*", ATTRS{vendor}=="0x8086", ATTRS{device}=="0x51ca", TAG+="systemd", ENV{SYSTEMD_WANTS}+="alc298-amp-win.service"
