@@ -11,9 +11,15 @@ the raw capture and the full write-up of how it was done.
 > Windows crossover/EQ filters loaded. The fix applies itself at boot (udev +
 > systemd) and after resume from suspend. Verified on one machine only (see
 > [Tested hardware](#tested-hardware)).
+>
+> **Tested on Ubuntu 24.04 (kernel 6.8).** Nothing in it is Ubuntu-specific: it
+> should work on any systemd-based distribution (see
+> [Other distributions](#other-distributions)). Reports from other distros and
+> other Galaxy Book3 SKUs are welcome.
 
 - [TL;DR / install](#tldr--install)
 - [Tested hardware](#tested-hardware)
+- [Other distributions](#other-distributions)
 - [Background: why the speakers are silent](#background-why-the-speakers-are-silent)
 - [What Windows actually does](#what-windows-actually-does)
 - [How the fix works](#how-the-fix-works)
@@ -83,6 +89,28 @@ DMI product `940XFG`. Other Galaxy Book3 variants (e.g. 16" / 960XFG, other
 regional SKUs) **may** use different amplifier parameters. The table here is the
 one Windows sends on the KA1AR board. If you have a different SKU, the right way
 is to capture your own sequence (see [capture](#how-the-windows-sequence-was-captured)).
+
+## Other distributions
+
+The fix only relies on things every mainstream distribution has:
+
+- the kernel's HDA/SOF audio driver (the same code everywhere);
+- the ALSA hwdep device of the codec, `/dev/snd/hwC*D*`, which needs
+  `CONFIG_SND_HDA_HWDEP=y` (enabled in Ubuntu, Debian, Fedora and Arch kernels);
+- `python3` (standard library only), `udev` and `systemd`.
+
+Quick check before trying it:
+
+```bash
+ls /dev/snd/hwC*D*                                   # hwdep nodes exist
+grep -l 0x144dc882 /sys/class/sound/hwC*D*/subsystem_id   # the ALC298 with this SSID
+cat /sys/class/dmi/id/product_name                   # 940XFG (required by install.sh)
+```
+
+`install.sh` puts the resume hook in `/lib/systemd/system-sleep/`. On distributions
+where `/lib` is not a symlink to `/usr/lib`, move it to `/usr/lib/systemd/system-sleep/`.
+Without systemd, run `fix/alc298-amp-init-win.py` from your init system once the
+sound card is up and again after every resume.
 
 ## Background: why the speakers are silent
 
