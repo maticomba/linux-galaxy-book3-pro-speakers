@@ -12,7 +12,7 @@ the raw capture and the full write-up of how it was done.
 > systemd) and after resume from suspend. Verified on one machine only (see
 > [Tested hardware](#tested-hardware)).
 >
-> **Tested on Ubuntu 24.04 (kernel 6.8).** Nothing in it is Ubuntu-specific: it
+> **Tested on Ubuntu 24.04 with kernels 6.8 and 7.0 (HWE).** Nothing in it is Ubuntu-specific: it
 > should work on any systemd-based distribution (see
 > [Other distributions](#other-distributions)). Reports from other distros and
 > other Galaxy Book3 SKUs are welcome.
@@ -81,7 +81,7 @@ again.
 | BIOS | `P03RGS.150.230330.ZW` |
 | Codec | Realtek ALC298, vendor `0x10ec0298`, subsystem `0x144dc882` |
 | Audio controller | Intel `8086:51ca` (PCI `00:1f.3`), SOF driver (`sof-audio-pci-intel-tgl`, card `sof-hda-dsp`) |
-| OS | Ubuntu 24.04.5, kernel `6.8.0-147-generic`, Secure Boot on |
+| OS | Ubuntu 24.04.5, Secure Boot on. Kernels `6.8.0-147-generic` and HWE `7.0.0-38-generic` / `7.0.0-42-generic` |
 | Windows reference | Realtek driver `6.0.9689.1` (Samsung package `HDXSSTSamsung`, `RTKVHD64.sys`) |
 
 The safety check requires codec SSID `0x144dc882`; `install.sh` also requires
@@ -140,8 +140,9 @@ Upstream Linux initializes these Samsung amplifiers for other models in
 `sound/pci/hda/patch_realtek.c`. The first sequence (2022) was "extracted from
 Windows driver"; the Galaxy Book3 Pro 360 support (2024) was "captured using a
 modified version of QEMU". Today it lives in the `alc298_samsung_v2_*` helpers
-with tables for 2 and 4 amps (`V2_2`/`V2_4`). The kernel used here (6.8) has no
-quirk for this machine's SSID `0x144dc882`.
+with tables for 2 and 4 amps (`V2_2`/`V2_4`). Neither of the kernels tested here
+(6.8 and 7.0) has a quirk for this machine's SSID `0x144dc882`: on 7.0 the amp status
+word still reads `0x3000` (untouched since power-on) when the fix runs at boot.
 [Andycodeman's speaker-fix-940xfg][andy-940xfg] fills the gap from user space
 with `hda-verb`, using the upstream `V2_4` table plus a write derived from
 `RtHDDump` snapshots in [issue #44][issue-44].
@@ -272,6 +273,9 @@ The tools in [`tools/`](tools/) then located the captured coefficients inside
   `COEF20[0x26] = 0xb001`, pin `0x17 PIN_CTL = 0x40`.
 - **Lifecycle:** manual run on a cold boot, service started manually, reboot
   (applied ~7.8 s into boot) and suspend/resume (re-applied in < 1 s). All OK.
+- **Kernel 7.0 (Ubuntu HWE `7.0.0-38` and `7.0.0-42`):** applied at boot without
+  errors on every boot since the upgrade (6 boots), speakers working. Suspend/resume
+  was verified on 6.8 only so far.
 
 ## Pitfalls found along the way
 
